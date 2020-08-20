@@ -9,7 +9,7 @@ Sec-lookup is a tool for security analysts to perform various domain base lookup
 
 ## Example
 ```
-lookup-pydig.py yourdomain.com
+lookup.py yourdomain.com
 ```
 ## Requirement
 - python v3 
