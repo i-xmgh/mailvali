@@ -1,12 +1,13 @@
-# sec-lookup
-working on various lookups, a security anlayst needs to perform on a domain. 
+# Sec-lookup
+Sec-lookup is a tool for security analysts to perform various domain base lookup during their investigation.
 
-#### currenlty you can query single domain for 
+#### In current version 0.1, is all about email security, and you can query single domain for:
 - SPF
 - DKIM
 - DMARC
 
-## Usage
+
+## Example
 ```
 lookup-pydig.py yourdomain.com
 ```
