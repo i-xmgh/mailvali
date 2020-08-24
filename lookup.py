@@ -1,47 +1,64 @@
 #!/usr/bin/env python3
 
-
 import re
 import sys
 import pydig
+import argparse
 
-host=sys.argv[1] #input hostname
-# qtype=sys.argv[2] #input DNS query type
-# s=sys.argv[3] #input dkim selector
-qtype='txt' 
+parser = argparse.ArgumentParser(description="SPF, DMARC and DKIM are queried for host")
+parser.add_argument('host', help="This is the FQDN that will be queried")
+parser.add_argument('-s', help="DKIM selector", nargs='+')
+parser.add_argument('--savvy', help="it will query all DNS types in order", action='store_true')
+parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+args = parser.parse_args()
+
+qtype = 'txt'
+common_selector_list = ['dkim', 'default', 'selector', 'selector1', 'selector2', 'google', 'zoho']
+host = args.host
+
+resolver = pydig.Resolver(nameservers=['8.8.8.8', '1.1.1.1'])
 
 def spf():
-    spf1=pydig.query(host, qtype)
-    RE=re.findall(r'(v=spf1)(.*?)"', str(spf1), flags=0)
-    if RE==[]:
-        print("\nNo SPF record found for", host)
+    qspf = resolver.query(host, qtype)
+    mspf=re.findall(r'"v=spf1.*?"', str(qspf), flags=re.M)
+    if not mspf:
+       print("No SPF record found for ", host) 
     else:
-        for y in RE:
-            print("SPF:", y)
-    print()
+        for y in mspf:
+                    print("SPF:", y)
+        print()
 
 def dmarc():
-    dm='_dmarc.' + host
-    dmarc=pydig.query(dm, qtype)
-    if dmarc ==[]:
-        print("\nNo DMARC record found for", host)
+    qdmarc = '_dmarc.' + host
+    mdmarc = resolver.query(qdmarc, qtype)
+    if not mdmarc:
+        print("No DMARC record found for", host)
     else:
-        print("DMARC:", str(dmarc[-1]))
+        print("DMARC:", mdmarc[-1])
     print()
 
 def dkim():
-    for s in ['dkim', 'default', 'selector', 'selector1', 'selector2', 'google', 'zoho']:
-        dk=s + '._domainkey.' + host
-        dkim=pydig.query(dk, qtype)
-        for x in dkim:
-            if x !=None: #it seems this doesnt work
-                print("DKIM:", str(dkim[-1]))
-            else: #it seems this doesnt work
-                print("Couldn't verify DKIM record") #it seems this doesnt work
-    print()
+    if args.s:
+        selector = args.s
+    else:
+        selector = common_selector_list
 
-class Report():
-    print("DNS records for",host, "\nSPF, DMARC and DKIM are queried\n")
-    spf()
-    dmarc()
-    dkim()
+    for x in selector:
+        qdkim = x + '._domainkey.' + host
+        mdkim = resolver.query(qdkim, qtype)
+        if (mdkim):
+            print("DKIM: {}\n".format(x), mdkim[-1])
+        else:
+            if mdkim is None:
+                print("Couldn't find a DKIM record associated with {} \nIf you know the correct selector add it using \"-s\" tag".format(host))
+
+def savvy():
+    for query_type in pydig.QueryType:
+        print(query_type, resolver.query(host, query_type))
+
+spf()
+dmarc()
+dkim()
+if args.savvy:
+    print()
+    savvy()
