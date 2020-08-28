@@ -22,35 +22,35 @@ def spf():
     qspf = resolver.query(host, qtype)
     mspf=re.findall(r'"v=spf1.*?"', str(qspf), flags=re.M)
     if not mspf:
-       print("No SPF record found for ", host) 
+       print("\nNo SPF record found for ", host) 
     else:
         for y in mspf:
-                    print("SPF:", y)
-        print()
+            print("\nSPF:", y)
 
 def dmarc():
     qdmarc = '_dmarc.' + host
     mdmarc = resolver.query(qdmarc, qtype)
     if not mdmarc:
-        print("No DMARC record found for", host)
+        print("\nNo DMARC record found for", host)
     else:
-        print("DMARC:", mdmarc[-1])
-    print()
-
+        print("\nDMARC:", mdmarc[-1])
+       
 def dkim():
     if args.s:
         selector = args.s
     else:
         selector = common_selector_list
-
+    fdkim = False
     for x in selector:
         qdkim = x + '._domainkey.' + host
         mdkim = resolver.query(qdkim, qtype)
-        if (mdkim):
-            print("DKIM: {}\n".format(x), mdkim[-1])
-        else:
-            if mdkim is None:
-                print("Couldn't find a DKIM record associated with {} \nIf you know the correct selector add it using \"-s\" tag".format(host))
+        for row in mdkim:
+            if row:
+                print("\nDKIM: {}\n".format(x), row)
+                fdkim = True
+    if not fdkim:
+        print("\nCouldn't find a DKIM record associated with {} \nIf you know the correct selector add it using \"-s\" tag".format(host))
+        print()
 
 def savvy():
     for query_type in pydig.QueryType:
