@@ -5,11 +5,11 @@ import sys
 import pydig
 import argparse
 
-parser = argparse.ArgumentParser(description="SPF, DMARC and DKIM are queried for host")
+parser = argparse.ArgumentParser(description=" Query SPF, DMARC and DKIM for host email security investigation. Also you can add full DNS lookup within same command")
 parser.add_argument('host', help="This is the FQDN that will be queried")
 parser.add_argument('-s', help="DKIM selector", nargs='+')
 parser.add_argument('--savvy', help="it will query all DNS types in order", action='store_true')
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s 1.0.1')
 args = parser.parse_args()
 
 qtype = 'txt'
