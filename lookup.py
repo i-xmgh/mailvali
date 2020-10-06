@@ -16,7 +16,7 @@ qtype = 'txt'
 common_selector_list = ['dkim', 'default', 'selector', 'selector1', 'selector2', 'google', 'zoho']
 host = args.host
 
-resolver = pydig.Resolver(nameservers=['8.8.8.8', '1.1.1.1'])
+resolver = pydig.Resolver(nameservers=['1.1.1.1', '1.0.0.1'])
 
 def spf():
     qspf = resolver.query(host, qtype)
